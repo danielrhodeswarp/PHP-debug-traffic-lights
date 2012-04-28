@@ -21,19 +21,20 @@ on the [?] link in the debug bubble.
 
 * Zend Server / Apache with PHP
 * Tidy wrapper extension for PHP
+* json_encode() for PHP (for manual HTML5 validator link)
 
 
 ## What's hot?
 
 * Very instant - and obvious - rating of your PHP script's speed performance
-* In browser markup check and result report
+* In browser markup check and result report (except for HTML5 which is a manual link)
 * Works inobtrusively on any browser and doesn't need a toolbar etc
 
 
 ## What's not?
 
 * Generated HTML is assumed to be in UTF-8 encoding
-* HTML5 markup is not checked for correctness (because Tidy can't do this)
+* HTML5 markup is not *automatically* checked for correctness (because Tidy can't do this), but you can use the manual link
 * Uses Tidy which, as a project, seems to be mostly dead in the water
 * Reports only *generation* time of the HTML page which is only half the story (there is also how light and suitable the page is for transmission over the internet and etc etc)
 * It uses ob_*() functions and so, if your PHP scripts are using those too, something will screw up!

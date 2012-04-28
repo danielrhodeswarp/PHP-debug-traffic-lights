@@ -19,6 +19,8 @@ $clean_time = sprintf("%.04f", $time_taken);
 $output = ob_get_clean();
 echo $output;
 
+$js_safe_output = json_encode($output);
+
 //----------------------------
 $lightbox_colour = '';	//the debug bubble
 $lightbox_start = <<<HTML
@@ -77,7 +79,8 @@ if(preg_match('/.*[<]html.*/i', $output))
 	
 	if($actual_type == 'HTML5')
 	{
-		$lightbox_content .= "<br/><em>can't check</em>";
+		//$lightbox_content .= "<br/><em>can't check</em>";
+		$lightbox_content .= "<br/><a href='#' onclick='manualCheck(); return false;'><em>tag check</em></a>";
 	}
 	
 	$red_cutoff = 1;
@@ -110,10 +113,47 @@ if(preg_match('/.*[<]html.*/i', $output))
 	if(!empty($lightbox_content))
 	{
 		echo str_replace('LIGHTBOXCOLOUR', $lightbox_colour, $lightbox_start) . $lightbox_content . $lightbox_stop;
+		
+		//for manual validation check for html5 pages
+		echo <<<JAVASCRIPT
+<script type="text/javascript">
+function manualCheck()
+{
+	post_to_url('http://html5.validator.nu/', {showsource:'yes', parser:'html5', content:{$js_safe_output}});
+}
+
+//from http://stackoverflow.com/questions/133925/javascript-post-request-like-a-form-submit
+function post_to_url(path, params, method) {
+    method = method || "post"; // Set method to post by default, if not specified.
+
+    // The rest of this code assumes you are not using a library.
+    // It can be made less wordy if you use one.
+    var form = document.createElement("form");
+    form.setAttribute("method", method);
+    form.setAttribute("action", path);
+    form.setAttribute("target", 'trafficLightsValidation');	//keeps things tidy
+    form.setAttribute("enctype", 'multipart/form-data');	//stops html5.validator.nu from moaning
+    
+    for(var key in params) {
+        if(params.hasOwnProperty(key)) {
+            var hiddenField = document.createElement("input");
+            hiddenField.setAttribute("type", "hidden");
+            hiddenField.setAttribute("name", key);
+            hiddenField.setAttribute("value", params[key]);
+
+            form.appendChild(hiddenField);
+         }
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
+JAVASCRIPT;
 	}
 	
 	if($should_show_errorbox)
 	{
 		echo $errorbox_start . $errorbox_content . $errorbox_stop;
 	}
-}
+}	//end "Don't do anything for non-HTML files"
