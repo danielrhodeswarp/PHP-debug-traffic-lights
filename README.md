@@ -31,7 +31,7 @@ on the [?] link in the debug bubble.
 * Link to check erroneous (X)HTML again using the online W3C validator
 * Works inobtrusively on any browser and doesn't need a toolbar etc
 * *If* xdebug is on you PHP server, it is used to get the page generation time (I guess this is more accurate than my own method!)
-* *If* xdebug's profiler is enabled, the page's tracefile name is shown in the bubble. This is useful for use with KCacheGrind. Remeber that this tracefile lives on the *server* though!
+* *If* xdebug's profiler is enabled, the page's tracefile name is shown in the bubble. This is useful for use with KCacheGrind. Remember that this tracefile lives on the *server* though!
 
 
 ## What's not?
