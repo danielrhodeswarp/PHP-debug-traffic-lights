@@ -21,14 +21,17 @@ on the [?] link in the debug bubble.
 
 * Zend Server / Apache with PHP
 * Tidy wrapper extension for PHP
-* json_encode() for PHP (for manual HTML5 validator link)
-
+* json_encode() for PHP (for online validation links)
+* xdebug (optional) with profiler enabled (also optional)
 
 ## What's hot?
 
 * Very instant - and obvious - rating of your PHP script's speed performance
 * In browser markup check and result report (except for HTML5 which is a manual link)
+* Link to check erroneous (X)HTML again using the online W3C validator
 * Works inobtrusively on any browser and doesn't need a toolbar etc
+* *If* xdebug is on you PHP server, it is used to get the page generation time (I guess this is more accurate than my own method!)
+* *If* xdebug's profiler is enabled, the page's tracefile name is shown in the bubble. This is useful for use with KCacheGrind. Remeber that this tracefile lives on the *server* though!
 
 
 ## What's not?
@@ -41,9 +44,9 @@ on the [?] link in the debug bubble.
 * If your PHP scripts do a hard exit() then "auto_append_file" doesn't kick in and so there is no debug bubble
 * Don't forget that your output HTML will have all the debug bubble stuff tagged on to the
 end of it!
+* Might - depending on how you've set up your vhosts and Apache globally - break some of you PHP applications and require you to set PHP's "auto_prepend_file" and "auto_append_file" directives to empty string or null (or whatever!) for these applications. I think this is something to do with .htaccess directory security settings for PHP and the traffic lights scripts being *outside* the allowed directories
 
 ## Possible enhancements
 
 * Automatic detection of character encoding (to then tell Tidy)
-* I know that xDebug profiling information and etc can be plugged in to the debug bubble
-(have done similar in the past but no longer use xDebug)
+

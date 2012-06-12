@@ -2,18 +2,31 @@
 
 /**
  * @package    Mapanese (https://github.com/danielrhodeswarp/PHP-debug-traffic-lights)
- * @copyright  Copyright (c) 2011 Warp Asylum Ltd (UK).
+ * @copyright  Copyright (c) 2012 Warp Asylum Ltd (UK).
  * @license    see LICENCE file in source code root folder     New BSD License
  */
 
 //Put this file somewhere and set it as your PHP dev server's "auto_append_file"
 
 //----script's behaviour is this:
+//show time taken for script (using xdebug timing if xdebug is installed)
 //give red, green or orange based only on SPEED
-//with a link to any (X)HTML errors regardless of speed colour
+//check (X)HTML markup with Tidy and link to any (X)HTML errors regardless of speed colour
+//*OR* link to HTML5 validator for HTML5 output (Tidy can't do HTML5)
+//show xdebug profiler filename if relevant
 //----
 
-$time_taken = microtime(true) - $traffic_lights_start_microtime;
+$time_taken = 0;
+if(extension_loaded('xdebug') and function_exists('xdebug_time_index'))
+{
+	$time_taken = xdebug_time_index();	//Returns the current time index since the starting of the script in seconds
+}
+
+else
+{
+	$time_taken = microtime(true) - $traffic_lights_start_microtime;
+}
+
 $clean_time = sprintf("%.04f", $time_taken);
 
 $output = ob_get_clean();
@@ -40,7 +53,7 @@ $should_show_errorbox = false;
 //Don't do anything for non-HTML files (ie. Ajax returns etc)
 if(preg_match('/.*[<]html.*/i', $output))
 {
-	$tidy = new tidy();
+	$tidy = new tidy();	//or use extension_loaded() for this too?
 	//$output = str_replace('<table', '<table summary=""', $output);
 	$actual_type = 'HTML4';
 	$error_type = 'HTML4';
@@ -71,7 +84,7 @@ if(preg_match('/.*[<]html.*/i', $output))
 	{
 		$lightbox_content .= "<br/><strong>Errors! <span style=\"cursor:pointer; color:blue; text-decoration:underline;\" onclick=\"var errorbox = document.getElementById('tl_errorbox'); if(errorbox.style.display == 'none'){errorbox.style.display = 'block';}else{errorbox.style.display = 'none';}\">[?]</span></strong>";
 		
-		$errorbox_content = "<em>{$error_type} errors!</em><br/>" . htmlspecialchars($tidy->errorBuffer);
+		$errorbox_content = "<em>{$error_type} errors!</em> <a href='#' onclick='manualCheck_autodetect(); return false;'>(Validate online with W3C)</a><br/>" . htmlspecialchars($tidy->errorBuffer);
 		$errorbox_content .= "<br/><span style=\"color:blue; text-decoration:underline; cursor:pointer;\" onclick=\"window.open('view-source:' + document.location, 'sourcewin', 'width=640, height=480, scrollbars=yes, statusbar=yes');\">View source</span>";  //works in Chrome and Firefox
 		
 		$should_show_errorbox = true;
@@ -80,7 +93,16 @@ if(preg_match('/.*[<]html.*/i', $output))
 	if($actual_type == 'HTML5')
 	{
 		//$lightbox_content .= "<br/><em>can't check</em>";
-		$lightbox_content .= "<br/><a href='#' onclick='manualCheck(); return false;'><em>tag check</em></a>";
+  		//$lightbox_content .= "<br/><a href='#' onclick='manualCheck_html5(); return false;'><em>tag check (validator.nu)</em></a>";
+  		$lightbox_content .= "<br/><a href='#' onclick='manualCheck_autodetect(); return false;'><em>tag check (W3C)</em></a>";
+  	
+	}
+	
+	$tracefile = 'tracefile_name_goes_here';
+	if(extension_loaded('xdebug') and function_exists('xdebug_get_profiler_filename'))
+	{
+		//$tracefile = xdebug_get_tracefile_name();
+		$tracefile = xdebug_get_profiler_filename();
 	}
 	
 	$red_cutoff = 1;
@@ -110,6 +132,13 @@ if(preg_match('/.*[<]html.*/i', $output))
 		$lightbox_content = "{$clean_time}s" . $lightbox_content;
 	}
 	
+	if(extension_loaded('xdebug'))
+	{
+		$lightbox_content .= <<<HTML
+<p style="font-size:smaller; cursor:pointer;" title="kcachegrind {$tracefile}">{$tracefile}</p>
+HTML;
+	}
+	
 	if(!empty($lightbox_content))
 	{
 		echo str_replace('LIGHTBOXCOLOUR', $lightbox_colour, $lightbox_start) . $lightbox_content . $lightbox_stop;
@@ -117,7 +146,13 @@ if(preg_match('/.*[<]html.*/i', $output))
 		//for manual validation check for html5 pages
 		echo <<<JAVASCRIPT
 <script type="text/javascript">
-function manualCheck()
+//xhtml and html4 (and html5 *based* on html5.validator.nu)
+function manualCheck_autodetect()
+{
+	post_to_url('http://validator.w3.org/check', {prefill_doctype:'html401', group:'0', doctype:'Inline', fragment:{$js_safe_output}});
+}
+
+function manualCheck_html5()
 {
 	post_to_url('http://html5.validator.nu/', {showsource:'yes', parser:'html5', content:{$js_safe_output}});
 }
