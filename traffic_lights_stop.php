@@ -37,7 +37,7 @@ $js_safe_output = json_encode($output);
 //----------------------------
 $lightbox_colour = '';	//the debug bubble
 $lightbox_start = <<<HTML
-<div id="tl_lightbox" style="z-index:10000; text-align:center; position:fixed; border:2px solid black; background-color:LIGHTBOXCOLOUR; opacity:0.75; -moz-border-radius:50%; -webkit-border-radius:50%; padding-top:1em; color:black; top:2%; left:88%; width:10%; height:10%;">
+<div id="tl_lightbox" style="z-index:10000; text-align:center; position:fixed; border:2px solid black; background-color:LIGHTBOXCOLOUR; opacity:0.75; border-radius:50%; padding-top:1em; color:black; top:2%; left:88%; width:10%; height:10%;">
 HTML;
 $lightbox_stop = '</div>';
 $lightbox_content = '';
