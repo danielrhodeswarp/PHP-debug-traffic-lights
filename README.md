@@ -1,4 +1,4 @@
-# PHP debug traffic lights
+# php-debug-traffic-lights
 
 ## What is it?
 
